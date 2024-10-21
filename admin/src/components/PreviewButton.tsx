@@ -70,8 +70,12 @@ const PreviewButton = () => {
 			});
 			alert(`${pinCodeMessage}: ${pinCode}`);
 
+			let appBaseUrlJoined = `${appBaseUrl}`;
+			if(settings?.previewUrlQuery)
+				appBaseUrlJoined = `${appBaseUrl}/${settings?.previewUrlQuery}`;
+
 			//open link in new browser tab
-			window.open(`${appBaseUrl}/elonezet?token=${token}`, '_blank'); //.focus();
+			window.open(`${appBaseUrlJoined}?token=${encodeURIComponent(token)}`, '_blank'); //.focus();
 
 		}
 		catch (error) {

@@ -118,9 +118,14 @@ const Settings = () => {
 					<>
 						<Box paddingBottom={4}>
 							<SettingsTextField hasTooltip={true}
-								fieldName="previewUrl" displayName="fields.previewUrl" placeholder='Preview Frontend URL'
+								fieldName="previewUrl" displayName="fields.previewUrl" placeholder='Frontend Preview URL'
 								required={true} updateItem={onUpdateSettings} value={settings?.previewUrl} />
-						</Box>						
+						</Box>
+						<Box paddingBottom={4}>
+							<SettingsTextField hasTooltip={true}
+								fieldName="previewUrlQuery" displayName="fields.previewUrlQuery" placeholder='Frontend Preview URL Query Param'
+								required={false} updateItem={onUpdateSettings} value={settings?.previewUrlQuery} />
+						</Box>
 					</>
 				)}
 			</Layouts.Content >

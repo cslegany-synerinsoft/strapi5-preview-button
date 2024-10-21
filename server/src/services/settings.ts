@@ -13,7 +13,8 @@ const createDefaultConfig = async () => {
     const pluginStore = getPluginStore();
 
     const value: PluginSettingsResponse = {
-        previewUrl: ""
+        previewUrl: "",
+        previewUrlQuery: "elonezet",
     };
     await pluginStore.set({ key: 'settings', value });
     return pluginStore.get({ key: 'settings' });

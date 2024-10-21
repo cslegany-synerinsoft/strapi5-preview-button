@@ -1,6 +1,6 @@
 {
   "name": "@cslegany/preview-button-strapi5",
-  "version": "0.5.1",
+  "version": "0.5.2",
   "description": "This package adds Preview Button to the Edit View of Content Manager in Strapi 5",
   "strapi": {
     "kind": "plugin",

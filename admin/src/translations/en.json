@@ -1,4 +1,12 @@
 {
 	"plugin.buttons.preview": "Preview",
-	"plugin.buttons.pinCodeMessage": "PIN code"
+	"plugin.buttons.pinCodeMessage": "PIN code",
+	"plugin.name": "Preview Button",
+    "plugin.label": "Preview Button",
+    "plugin.description": "Adds Preview Button to the Edit View of Content Manager in Strapi",
+    "plugin.configuration": "Configuration",
+    "plugin.settings.buttons.save": "Save",
+	"plugin.settings.info.title": "Adjust Preview Frontend URL",
+	"plugin.settings.fields.previewUrl.tooltip": "Preview URL",
+	"plugin.settings.errors.required": "Required Field"
 }

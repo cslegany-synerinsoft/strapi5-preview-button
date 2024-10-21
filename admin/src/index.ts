@@ -26,6 +26,27 @@ export default {
 			isReady: false,
 			name: PLUGIN_ID,
 		});
+
+		app.createSettingSection(
+			{
+			  id: PLUGIN_ID,
+			  intlLabel: {
+				id: `${PLUGIN_ID}.plugin.name`,
+				defaultMessage: 'Custom Dashboard',
+			  },
+			},
+			[
+			  {
+				intlLabel: {
+				  id: `${PLUGIN_ID}.plugin.configuration`,
+				  defaultMessage: 'Configuration',
+				},
+				id: 'settings',
+				to: `${PLUGIN_ID}`,
+				Component:() => import('./pages/Settings'),
+			  },
+			]
+		  );	  
 	},
 
 	bootstrap(app: any) {

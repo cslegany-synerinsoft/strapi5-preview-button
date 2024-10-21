@@ -1,12 +1,13 @@
-import React from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useIntl } from "react-intl";
 import { useLocation, useParams } from "react-router-dom"; //In react-router-dom v6 useHistory() is replaced by useNavigate().
-import { unstable_useContentManagerContext as useContentManagerContext } from '@strapi/strapi/admin';
+import { unstable_useContentManagerContext as useContentManagerContext, useFetchClient } from '@strapi/strapi/admin';
 import { Button, Box } from "@strapi/design-system";
 import { PresentationChart } from "@strapi/icons";
 
 import moment from "moment";
 import * as CryptoJS from 'crypto-js';
+import { PluginSettingsResponse } from "../../../typings";
 
 const PreviewButton = () => {
 	const { formatMessage } = useIntl();
@@ -18,12 +19,35 @@ const PreviewButton = () => {
 
 	const { id } = useParams<{ id: string }>();
 
+	const isMounted = useRef(true);
+	const { get } = useFetchClient();
+	const [isLoading, setIsLoading] = useState(true);
+	const defaultSettingsBody: PluginSettingsResponse | null = null;
+	const [settings, setSettings] = useState<PluginSettingsResponse | null>(defaultSettingsBody);
+
+	useEffect(() => {
+		const fetchData = async () => {
+			const { data } = await get<PluginSettingsResponse>(`/preview-button/settings`);
+			setSettings(data);
+
+			setIsLoading(false);
+		}
+		fetchData();
+
+		// unmount
+		return () => {
+			isMounted.current = false;
+		};
+	}, []);
+
 	const handlePreview = () => {
 		try {
 			//app base url
-			let appBaseUrl = process.env.STRAPI_ADMIN_APP_URL;
-			if (!appBaseUrl)
-				appBaseUrl = "https://kontroll.hu";
+			let appBaseUrl = settings?.previewUrl;
+			if (!appBaseUrl) {
+				alert(`Invalid previewUrl: ${appBaseUrl}`);
+				return;
+			}
 
 			if (appBaseUrl.substring(appBaseUrl.length - 1) === "/")
 				appBaseUrl = appBaseUrl.slice(0, -1);

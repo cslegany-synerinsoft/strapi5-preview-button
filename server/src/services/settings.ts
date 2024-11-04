@@ -15,7 +15,7 @@ const createDefaultConfig = async () => {
     const settingsList: Array<PluginSettingsBody> = [
         {
             entityId: 'api::article.article',
-            previewUrl: 'https://localhost:3000/elonezet',
+            previewUrl: 'http://localhost:3000/elonezet',
             buttonLabel: 'Preview'
         }
     ];

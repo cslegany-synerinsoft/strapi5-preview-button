@@ -1,4 +1,9 @@
-export interface PluginSettingsResponse {
+export interface PluginSettingsBody {
+    entityId: string;
     previewUrl: string;
-    previewUrlQuery?: string;
+    buttonLabel: string;
+}
+
+export interface PluginSettingsResponse {
+    items: Array<PluginSettingsBody>;
 }

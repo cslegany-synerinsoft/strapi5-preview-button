@@ -10,44 +10,44 @@ import { getTranslation as getTrad } from '../utils/getTranslation';
 import { Information } from '@strapi/icons';
 import TooltipIconButton from './TooltipIconButton';
 
-interface SettingsTextFieldProps {
-	fieldName: string;
-	displayName: string;
-	placeholder: string;
+interface SettingsCardTextFieldProps {
+	index: number,
+	name: string;
 	required: boolean;
-	value?: string;
+	value: string;
 	hasLabel?: boolean;
 	hasHint?: boolean;
 	hasTooltip?: boolean;
-	updateItem: (fieldName: string, value: string) => void,
+	updateItem: (index: number, fieldName: string, value: string) => void,
 }
 
-const SettingsTextField = (props: SettingsTextFieldProps) => {
-	const { fieldName, displayName, placeholder, required, value, updateItem,
-		hasLabel = false, hasHint = false, hasTooltip = false } = props;
+const SettingsCardTextField = ({ index, name, required, value, hasLabel, hasHint, hasTooltip, updateItem }: SettingsCardTextFieldProps) => {
 	const { formatMessage } = useIntl();
 	const [hasError, setHasError] = useState(false);
 
 	const onItemChange = (newValue: string) => {
 		setHasError(required && !newValue);
-		updateItem(fieldName, newValue);
+		updateItem(index, name, newValue);
 	}
 
-	const label = hasLabel ? formatMessage({ id: getTrad(`plugin.settings.${displayName}`) }) : "";
-	const hint = hasHint ? formatMessage({ id: getTrad(`plugin.settings.${displayName}.hint`) }) : "";
-	const tooltip = hasTooltip ? formatMessage({ id: getTrad(`plugin.settings.${displayName}.tooltip`) }) : "";
+	const label = hasLabel ? formatMessage({ id: getTrad(`plugin.settings.${name}`) }) : "";
+	const hint = hasHint ? formatMessage({ id: getTrad(`plugin.settings.${name}.hint`) }) : "";
+	const tooltip = hasTooltip ? formatMessage({ id: getTrad(`plugin.settings.${name}.tooltip`) }) : "";
+
+	const placeholder = formatMessage({ id: getTrad(`plugin.settings.${name}.placeholder`) });
 
 	return (
-		<Field.Root name={`field_${displayName}`} required={required}
+		<Field.Root name={`field_${name}`} required={required}
 			error={hasError ? formatMessage({ id: getTrad("plugin.settings.errors.required") }) : ""}
-			hint={hint}>
+			hint={hint}
+		>
 			{label && <Field.Label>
 				{label}
 			</Field.Label>}
 			<Flex justifyContent="space-between">
 				<Box style={{ width: '100%' }}>
 					<TextInput
-						name={displayName}
+						name={name}
 						placeholder={placeholder}
 						onChange={(e: React.ChangeEvent<HTMLInputElement>) => onItemChange(e.target.value)}
 						value={value}
@@ -61,8 +61,9 @@ const SettingsTextField = (props: SettingsTextFieldProps) => {
 			</Flex>
 			{hint && <Field.Hint />}
 			<Field.Error />
+
 		</Field.Root>
 	);
 }
 
-export default SettingsTextField;
+export default SettingsCardTextField;

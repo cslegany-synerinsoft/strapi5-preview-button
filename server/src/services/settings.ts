@@ -1,5 +1,5 @@
 import type { Core } from '@strapi/strapi';
-import { PluginSettingsResponse } from '../../../typings';
+import { PluginSettingsBody, PluginSettingsResponse } from '../../../typings';
 
 const getPluginStore = () => {
     return strapi.store({
@@ -12,9 +12,15 @@ const getPluginStore = () => {
 const createDefaultConfig = async () => {
     const pluginStore = getPluginStore();
 
+    const settingsList: Array<PluginSettingsBody> = [
+        {
+            entityId: 'api::article.article',
+            previewUrl: 'https://localhost:3000/elonezet',
+            buttonLabel: 'Preview'
+        }
+    ];
     const value: PluginSettingsResponse = {
-        previewUrl: "",
-        previewUrlQuery: "elonezet",
+        items: settingsList
     };
     await pluginStore.set({ key: 'settings', value });
     return pluginStore.get({ key: 'settings' });

@@ -1,22 +1,9 @@
 import React, { useEffect, useRef, useState } from 'react';
-import {
-	Button,
-	Grid,
-	Flex,
-	Box,
-	Typography,
-	Divider,
-	Combobox,
-	ComboboxOption,
-	Field,
-} from '@strapi/design-system';
-import { Page, Layouts } from '@strapi/strapi/admin';
-import { Check } from '@strapi/icons';
 import { useFetchClient, useNotification } from '@strapi/strapi/admin';
-import { PluginSettingsResponse } from '../../../typings';
+import { PluginSettingsResponse, PluginSettingsBody } from '../../../typings';
 import { useIntl } from 'react-intl';
+import SettingsCardPage from '../components/SettingsCardPage';
 import { getTranslation as getTrad } from '../utils/getTranslation';
-import SettingsTextField from '../components/SettingsTextField';
 
 const Settings = () => {
 	const { formatMessage } = useIntl();
@@ -24,8 +11,8 @@ const Settings = () => {
 	const isMounted = useRef(true);
 	const { get, post } = useFetchClient();
 
-	const defaultSettingsBody: PluginSettingsResponse | null = null;
-	const [settings, setSettings] = useState<PluginSettingsResponse | null>(defaultSettingsBody);
+	const defaultSettingsBody: PluginSettingsBody[] = [];
+	const [settings, setSettings] = useState<PluginSettingsBody[]>(defaultSettingsBody);
 	const [isSaving, setIsSaving] = useState(false);
 	const [isLoading, setIsLoading] = useState(true);
 
@@ -34,8 +21,7 @@ const Settings = () => {
 	useEffect(() => {
 		const fetchData = async () => {
 			const { data } = await get<PluginSettingsResponse>(`/preview-button/settings`);
-			setSettings(data);
-
+			setSettings(data.items);
 			setIsLoading(false);
 		}
 		fetchData();
@@ -44,27 +30,7 @@ const Settings = () => {
 		return () => {
 			isMounted.current = false;
 		};
-	}, []);
-
-	const onUpdateSettings = (fieldName: string, value: string) => {
-		if (!settings)
-			return;
-
-		try {
-			const updatedSettings = { ...settings };
-			(updatedSettings as any)[fieldName] = value;
-			setSettings(updatedSettings);
-		} catch (e) {
-			console.log(e);
-		}
-	}
-
-	const checkFormErrors = () => {
-		const previewUrl = settings?.previewUrl ?? "";
-		return !previewUrl;
-	}
-
-	const hasFormError = checkFormErrors();
+	}, [])
 
 	const onSubmit = async () => {
 		if (!settings)
@@ -73,64 +39,58 @@ const Settings = () => {
 		setIsSaving(true);
 
 		const res = await post(`/preview-button/settings`, {
-			method: 'POST',
-			body: settings
+			items: settings
 		});
-		setSettings(res.data);
+		setSettings(res.data.items);
 		setIsSaving(false);
 
 		toggleNotification({
 			type: 'success',
 			message: formatMessage({
-				id: 'plugin.settings.updated',
+				id: getTrad('plugin.settings.updated'),
 				defaultMessage: 'Settings successfully updated',
 			}),
 		});
 	};
 
-	if (isLoading || !settings)
-		return <></>;
+	const onAddCard = () => {
+		if (!settings)
+			return;
+
+		const setting: PluginSettingsBody = {
+			entityId: '', previewUrl: '', buttonLabel: 'Preview',
+		};
+		const updatedSettings = settings.map(item => ({ ...item }))
+		updatedSettings.push(setting);
+		setSettings(updatedSettings);
+	}
+
+	const onRemoveCard = (index: number) => {
+		const newArray = settings.filter((item, itemIndex) => itemIndex !== index);
+		setSettings(newArray);
+	}
+
+	const updateItem = (index: number, fieldName: string, value: string) => {
+		try {
+			let updatedSettings = settings.map((setting, settingIndex) => {
+				if (settingIndex === index) {
+					const item = { ...setting };
+					(item as any)[fieldName] = value;
+					return item;
+				}
+				return setting;
+			});
+			setSettings(updatedSettings);
+		} catch (e) {
+			console.log(e);
+		}
+	}
 
 	return (
-		<>
-			<Layouts.Header
-				id="title"
-				title={formatMessage({ id: getTrad("plugin.settings.info.title") })}
-				primaryAction={
-					isLoading ? (<></>) : (
-						<Button
-							onClick={onSubmit}
-							startIcon={<Check />}
-							size="L"
-							disabled={isSaving || hasFormError}
-							loading={isSaving}
-						>
-							{formatMessage({ id: getTrad("plugin.settings.buttons.save") })}
-						</Button>
-					)
-				}
-			>
-			</Layouts.Header>
-			<Layouts.Content>
-				{(isLoading || !settings) ? (
-					<Page.Loading />
-				) : (
-					<>
-						<Box paddingBottom={4}>
-							<SettingsTextField hasTooltip={true}
-								fieldName="previewUrl" displayName="fields.previewUrl" placeholder='Frontend Preview URL'
-								required={true} updateItem={onUpdateSettings} value={settings?.previewUrl} />
-						</Box>
-						<Box paddingBottom={4}>
-							<SettingsTextField hasTooltip={true}
-								fieldName="previewUrlQuery" displayName="fields.previewUrlQuery" placeholder='Frontend Preview URL Query Param'
-								required={false} updateItem={onUpdateSettings} value={settings?.previewUrlQuery} />
-						</Box>
-					</>
-				)}
-			</Layouts.Content >
-		</>
-	);
+		<SettingsCardPage isLoading={isLoading} isSaving={isSaving} settings={settings}
+			onAddCard={onAddCard} onRemoveCard={onRemoveCard} onSubmit={onSubmit} updateItem={updateItem}>
+		</SettingsCardPage>
+	)
 }
 
 export default Settings;

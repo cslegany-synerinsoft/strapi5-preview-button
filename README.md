@@ -15,5 +15,4 @@ Yarn:
 - Install and use the plugin in Edit View. 
 
 ## License
-
-MIT
+- MIT

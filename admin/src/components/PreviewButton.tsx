@@ -1,56 +1,61 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useState } from "react";
 import { useIntl } from "react-intl";
 import { useLocation, useParams } from "react-router-dom"; //In react-router-dom v6 useHistory() is replaced by useNavigate().
-import { unstable_useContentManagerContext as useContentManagerContext, useFetchClient } from '@strapi/strapi/admin';
-import { Button, Box } from "@strapi/design-system";
-import { PresentationChart } from "@strapi/icons";
+import { unstable_useContentManagerContext as useContentManagerContext, useFetchClient, useNotification } from '@strapi/strapi/admin';
+import {
+	Button,
+	Box,
+	Modal,
+	Typography,
+	Flex
+} from "@strapi/design-system";
+import { Duplicate, PresentationChart } from "@strapi/icons";
 
 import moment from "moment";
 import * as CryptoJS from 'crypto-js';
-import { PluginSettingsResponse } from "../../../typings";
+import { getTranslation as getTrad } from '../utils/getTranslation';
+import { PluginSettingsBody, PluginSettingsResponse } from "../../../typings";
 
-const PreviewButton = () => {
+interface PreviewButtonProps {
+	settings: PluginSettingsResponse;
+}
+
+const PreviewButton = ({ settings }: PreviewButtonProps) => {
 	const { formatMessage } = useIntl();
+	const { toggleNotification } = useNotification();
 	const { pathname } = useLocation();
 
+	const pathnameLower = pathname.toLowerCase();
+
 	const { isSingleType, isCreatingEntry } = useContentManagerContext();
-	if (isSingleType || isCreatingEntry || pathname.toLowerCase().endsWith("/create")) //isCreatingEntry can be false even though we're creating an entry
+	if (isSingleType || isCreatingEntry || pathnameLower.endsWith("/create")) //isCreatingEntry can be false even though we're creating an entry
+		return null;
+
+	let settingForEntity = settings.items.find(x => pathnameLower.includes(x.entityId));
+	if (!settingForEntity)
 		return null;
 
 	const { id } = useParams<{ id: string }>();
 
-	const isMounted = useRef(true);
-	const { get } = useFetchClient();
-	const [isLoading, setIsLoading] = useState(true);
-	const defaultSettingsBody: PluginSettingsResponse | null = null;
-	const [settings, setSettings] = useState<PluginSettingsResponse | null>(defaultSettingsBody);
+	const [pinCode, setPinCode] = useState<number | null>(null);
 
-	useEffect(() => {
-		const fetchData = async () => {
-			const { data } = await get<PluginSettingsResponse>(`/preview-button/settings`);
-			setSettings(data);
+	const onCopyPINToClipboard = (e: any) => {
+		if (!pinCode)
+			return;
 
-			setIsLoading(false);
-		}
-		fetchData();
-
-		// unmount
-		return () => {
-			isMounted.current = false;
-		};
-	}, []);
+		navigator.clipboard.writeText(pinCode.toString()).then(() => {
+			toggleNotification({
+				type: 'success',
+				message: formatMessage({
+					id: 'plugin.modal.pinCode.copied',
+					defaultMessage: 'PIN code has been copied to Clipboard',
+				}),
+			});
+		});
+	}
 
 	const handlePreview = () => {
 		try {
-			//app base url
-			let appBaseUrl = settings?.previewUrl;
-			if (!appBaseUrl) {
-				alert(`Invalid previewUrl: ${appBaseUrl}`);
-				return;
-			}
-
-			if (appBaseUrl.substring(appBaseUrl.length - 1) === "/")
-				appBaseUrl = appBaseUrl.slice(0, -1);
 
 			//generate token
 			const docId = id;
@@ -63,39 +68,62 @@ const PreviewButton = () => {
 			const jsonString = JSON.stringify({ docId, expDate });
 
 			const token = CryptoJS.AES.encrypt(jsonString, secret).toString();
+			setPinCode(pinCode);
 
-			const pinCodeMessage = formatMessage({
-				id: "plugin.buttons.pinCodeMessage",
-				defaultMessage: "PIN code",
-			});
-			alert(`${pinCodeMessage}: ${pinCode}`);
-
-			let appBaseUrlJoined = `${appBaseUrl}`;
-			if(settings?.previewUrlQuery)
-				appBaseUrlJoined = `${appBaseUrl}/${settings?.previewUrlQuery}`;
+			const queryParams = new URLSearchParams({ token });
+			const queryString = queryParams.toString();
 
 			//open link in new browser tab
-			window.open(`${appBaseUrlJoined}?token=${encodeURIComponent(token)}`, '_blank'); //.focus();
-
+			window.open(`${settingForEntity?.previewUrl}?${queryString}`, '_blank');
 		}
 		catch (error) {
 			console.error(error);
 			alert("An unexpected error occurred!");
 		}
-
 	};
 
 	return (
 		<>
 			{id && (
-				<Box style={{ width: '100%' }}>
-					<Button style={{ width: '100%' }} variant="secondary" startIcon={<PresentationChart />} onClick={handlePreview}>
-						{formatMessage({
-							id: "plugin.buttons.preview",
-							defaultMessage: "Preview",
-						})}
-					</Button>
-				</Box>
+				<Modal.Root>
+					<Modal.Trigger>
+						<Box style={{ width: '100%' }}>
+							<Button style={{ width: '100%' }} variant="secondary" startIcon={<PresentationChart />}
+								onClick={handlePreview}>
+								{settingForEntity.buttonLabel}
+							</Button>
+						</Box>
+					</Modal.Trigger>
+					<Modal.Content style={{ width: '400px' }}>
+						<Modal.Header>
+							<Modal.Title>
+								{formatMessage({ id: getTrad("plugin.modal.title") })}
+							</Modal.Title>
+						</Modal.Header>
+						<Modal.Body>
+							<Typography variant="omega">
+								{formatMessage({ id: getTrad("plugin.modal.info") })}
+							</Typography>
+							<Box paddingTop={4}>
+								<Flex justifyContent="space-between">
+									<Typography variant="beta" id="pinCode">
+										{pinCode}
+									</Typography>
+									<Button variant="default" startIcon={<Duplicate />} onClick={onCopyPINToClipboard}>
+										{formatMessage({ id: getTrad("plugin.buttons.copy") })}
+									</Button>
+								</Flex>
+							</Box>
+						</Modal.Body>
+						<Modal.Footer>
+							<Modal.Close>
+								<Button variant="tertiary">
+									{formatMessage({ id: getTrad("plugin.buttons.close") })}
+								</Button>
+							</Modal.Close>
+						</Modal.Footer>
+					</Modal.Content>
+				</Modal.Root>
 			)}
 		</>
 	);

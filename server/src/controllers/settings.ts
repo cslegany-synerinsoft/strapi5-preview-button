@@ -18,7 +18,7 @@ export default ({ strapi }: { strapi: Core.Strapi }) => ({
         const { body } = ctx.request;
         
         try {
-            await settingService.setSettings(body.body);
+            await settingService.setSettings(body);
             ctx.body = await settingService.getSettings();
         }
         catch (err) {

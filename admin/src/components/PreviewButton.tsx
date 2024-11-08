@@ -14,7 +14,7 @@ import { Duplicate, PresentationChart } from "@strapi/icons";
 import moment from "moment";
 import * as CryptoJS from 'crypto-js';
 import { getTranslation as getTrad } from '../utils/getTranslation';
-import { PluginSettingsBody, PluginSettingsResponse } from "../../../typings";
+import { PluginSettingsResponse } from "../../../typings";
 
 interface PreviewButtonProps {
 	settings: PluginSettingsResponse;
@@ -27,8 +27,8 @@ const PreviewButton = ({ settings }: PreviewButtonProps) => {
 
 	const pathnameLower = pathname.toLowerCase();
 
-	const { isSingleType, isCreatingEntry } = useContentManagerContext();
-	if (isSingleType || isCreatingEntry || pathnameLower.endsWith("/create")) //isCreatingEntry can be false even though we're creating an entry
+	const { isCreatingEntry, isSingleType } = useContentManagerContext();
+	if (isCreatingEntry || pathnameLower.endsWith("/create")) //isCreatingEntry can be false even though we're creating an entry
 		return null;
 
 	let settingForEntity = settings.items.find(x => pathnameLower.includes(x.entityId));
@@ -65,7 +65,7 @@ const PreviewButton = ({ settings }: PreviewButtonProps) => {
 			const pinCode = Math.floor(Math.random() * (99999 - 11111 + 1)) + 11111;
 
 			const secret = `${hash}_${pinCode}`;
-			const jsonString = JSON.stringify({ docId, expDate });
+			const jsonString = !isSingleType ? JSON.stringify({ docId, expDate }) : JSON.stringify({ expDate });
 
 			const token = CryptoJS.AES.encrypt(jsonString, secret).toString();
 			setPinCode(pinCode);
@@ -82,9 +82,10 @@ const PreviewButton = ({ settings }: PreviewButtonProps) => {
 		}
 	};
 
+	const hasToDisplayButton = (!isSingleType && id) || isSingleType;
 	return (
 		<>
-			{id && (
+			{hasToDisplayButton && (
 				<Modal.Root>
 					<Modal.Trigger>
 						<Box style={{ width: '100%' }}>

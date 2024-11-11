@@ -39,7 +39,7 @@ const PreviewButton = ({ settings }: PreviewButtonProps) => {
 
 	const [pinCode, setPinCode] = useState<number | null>(null);
 
-	const expirySecs = process.env.STRAPI_ADMIN_PREVIEWBUTTON_EXPIRY ?? 300;
+	const expirySecs = settingForEntity.expiry ?? 300;
 	const hash = process.env.STRAPI_ADMIN_PREVIEWBUTTON_SECRET;
 	if (!hash) {
 		alert("Preview Button Secret Hash is required");

@@ -14,14 +14,15 @@ interface SettingsCardTextFieldProps {
 	index: number,
 	name: string;
 	required: boolean;
-	value: string;
+	value: string | number;
 	hasLabel?: boolean;
 	hasHint?: boolean;
 	hasTooltip?: boolean;
-	updateItem: (index: number, fieldName: string, value: string) => void,
+	updateItem: (index: number, fieldName: string, value: string | number) => void,
+	type?: string,
 }
 
-const SettingsCardTextField = ({ index, name, required, value, hasLabel, hasHint, hasTooltip, updateItem }: SettingsCardTextFieldProps) => {
+const SettingsCardTextField = ({ index, name, required, value, hasLabel, hasHint, hasTooltip, updateItem, type = 'text' }: SettingsCardTextFieldProps) => {
 	const { formatMessage } = useIntl();
 	const [hasError, setHasError] = useState(false);
 
@@ -51,6 +52,7 @@ const SettingsCardTextField = ({ index, name, required, value, hasLabel, hasHint
 						placeholder={placeholder}
 						onChange={(e: React.ChangeEvent<HTMLInputElement>) => onItemChange(e.target.value)}
 						value={value}
+						type={type}
 					/>
 				</Box>
 				{tooltip && <Box marginLeft={2}>

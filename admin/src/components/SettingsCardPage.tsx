@@ -18,7 +18,7 @@ interface SettingsCardPageProps {
 	onSubmit: () => void,
 	onAddCard: () => void,
 	onRemoveCard: (index: number) => void,
-	updateItem: (index: number, fieldName: string, value: string) => void,
+	updateItem: (index: number, fieldName: string, value: string | number) => void,
 }
 
 const SettingsCardPage = (props: SettingsCardPageProps) => {
@@ -26,7 +26,7 @@ const SettingsCardPage = (props: SettingsCardPageProps) => {
 	const { formatMessage } = useIntl();
 
 	const checkFormErrors = () => {
-		return settings.findIndex(x => !x.entityId || !x.previewUrl) !== -1;
+		return settings.findIndex(x => !x.entityId || !x.previewUrl || !x.expiry || !x.buttonLabel) !== -1;
 	}
 
 	const hasFormError = checkFormErrors();

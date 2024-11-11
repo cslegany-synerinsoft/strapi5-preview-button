@@ -23,6 +23,9 @@
 	"plugin.settings.buttonLabel": "Button Label",
 	"plugin.settings.buttonLabel.tooltip": "Button Label in Edit View",
 	"plugin.settings.buttonLabel.placeholder": "Preview",
+	"plugin.settings.expiry": "Token Expiry",
+	"plugin.settings.expiry.tooltip": "Expiry in secs",
+	"plugin.settings.expiry.placeholder": "300",
 	"plugin.settings.errors.required": "Required Field",
 	"plugin.settings.title": "Preview Button Config",
 	"plugin.settings.subtitle": "Manage preview url belonging to your entities"

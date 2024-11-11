@@ -4,7 +4,6 @@ import {
 	Box,
 	Grid,
 	Typography,
-	Toggle,
 	Card,
 	CardHeader,
 	CardBody,
@@ -24,7 +23,7 @@ interface SettingsCardProps {
 	onSubmit: () => void,
 	onAddCard: () => void,
 	onRemoveCard: (index: number) => void,
-	updateItem: (index: number, fieldName: string, value: string) => void,
+	updateItem: (index: number, fieldName: string, value: string | number) => void,
 }
 
 const SettingsCard = (props: SettingsCardProps) => {
@@ -74,7 +73,7 @@ const SettingsCard = (props: SettingsCardProps) => {
 							<Grid.Root gap={6}>
 								<Grid.Item col={6} s={12}>
 									<Box paddingBottom={6}>
-										<SettingsCardTextField index={index} name='entityId' 
+										<SettingsCardTextField index={index} name='entityId'
 											hasTooltip={true} hasLabel={true} hasHint={false}
 											required={true} updateItem={updateItem} value={setting.entityId} />
 									</Box>
@@ -91,6 +90,13 @@ const SettingsCard = (props: SettingsCardProps) => {
 										<SettingsCardTextField index={index} name='previewUrl'
 											hasTooltip={true} hasLabel={true} hasHint={false}
 											required={true} updateItem={updateItem} value={setting.previewUrl} />
+									</Box>
+								</Grid.Item>
+								<Grid.Item col={6} s={12}>
+									<Box paddingBottom={6}>
+										<SettingsCardTextField index={index} name='expiry' type='number'
+											hasTooltip={true} hasLabel={true} hasHint={false}
+											required={true} updateItem={updateItem} value={setting.expiry} />
 									</Box>
 								</Grid.Item>
 							</Grid.Root>

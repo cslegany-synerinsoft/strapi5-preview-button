@@ -58,7 +58,7 @@ const Settings = () => {
 			return;
 
 		const setting: PluginSettingsBody = {
-			entityId: '', previewUrl: '', buttonLabel: 'Preview',
+			entityId: '', previewUrl: '', buttonLabel: 'Preview', expiry: 300,
 		};
 		const updatedSettings = settings.map(item => ({ ...item }))
 		updatedSettings.push(setting);
@@ -70,7 +70,7 @@ const Settings = () => {
 		setSettings(newArray);
 	}
 
-	const updateItem = (index: number, fieldName: string, value: string) => {
+	const updateItem = (index: number, fieldName: string, value: string | number) => {
 		try {
 			let updatedSettings = settings.map((setting, settingIndex) => {
 				if (settingIndex === index) {

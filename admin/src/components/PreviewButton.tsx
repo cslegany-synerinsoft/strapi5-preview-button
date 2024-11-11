@@ -59,9 +59,17 @@ const PreviewButton = ({ settings }: PreviewButtonProps) => {
 
 			//generate token
 			const docId = id;
-			const expDate = moment().add(5, "minutes").toISOString();
 
-			const hash = "da39a3ee5e6b4b0d3255bfef95601890afd80709";
+			const expirySecs = process.env.STRAPI_ADMIN_PREVIEWBUTTON_EXPIRY ?? 300;
+			console.log("aa", process.env.STRAPI_ADMIN_PREVIEWBUTTON_EXPIRY)
+			const expDate = moment().add(expirySecs, "seconds").toISOString();
+
+			const hash = process.env.STRAPI_ADMIN_PREVIEWBUTTON_SECRET;
+			console.log("hash", hash)
+			if(!hash) {
+				alert("Preview Button Secret Hash is required");
+				return;
+			}
 			const pinCode = Math.floor(Math.random() * (99999 - 11111 + 1)) + 11111;
 
 			const secret = `${hash}_${pinCode}`;
